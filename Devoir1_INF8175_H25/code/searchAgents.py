@@ -291,14 +291,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
   
-        '''
-            INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
-        '''
-
-        self.cornersWithFood = [corner for corner in self.corners if startingGameState.hasFood(*corner)]
-        
-
-
+        self.startingPosition = startingGameState.getPacmanPosition()
+        self.corners = self.corners
 
     def getStartState(self):
         """
@@ -306,22 +300,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
 
-        '''
-            INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
-        '''
         return (self.startingPosition, self.corners)
-    
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
 
-        '''
-            INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
-        '''
+        currentPosition, corners = state
+        return all(corner not in corners for corner in self.corners)
 
-        return state in self.cornersWithFood
 
     def getSuccessors(self, state):
         """
@@ -335,6 +323,7 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        currentPosition, corners = state
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -342,11 +331,13 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-           
-            '''
-                INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
-            '''
-
+            x, y = currentPosition
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPosition = (nextx, nexty)
+                newCorners = tuple(corner for corner in corners if corner != nextPosition)
+                successors.append(((nextPosition, newCorners), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
