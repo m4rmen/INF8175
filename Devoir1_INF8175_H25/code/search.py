@@ -166,7 +166,30 @@ def uniformCostSearch(problem:SearchProblem)->List[Direction]:
         INSÉREZ VOTRE SOLUTION À LA QUESTION 3 ICI
     '''
 
-    util.raiseNotDefined()
+    priorityQueue = util.PriorityQueue()
+    visited = set()
+    startState = problem.getStartState()
+    visited.add(startState)
+
+    for successorState, action, cost in problem.getSuccessors(startState):
+        priorityQueue.push((successorState, [action], cost), cost)
+    
+    while not priorityQueue.isEmpty():
+        currentState, pathSoFar, costSoFar = priorityQueue.pop()
+
+        if currentState not in visited:
+            visited.add(currentState)
+        
+            if problem.isGoalState(currentState):
+                return pathSoFar
+
+            for successorState, action, cost in problem.getSuccessors(currentState):
+                if successorState not in visited:
+                    newPath = pathSoFar + [action]
+                    newCost = costSoFar + cost
+                    priorityQueue.push((successorState, newPath, newCost), newCost)
+
+    return []
 
 def nullHeuristic(state:GameState, problem:SearchProblem=None)->List[Direction]:
     """
