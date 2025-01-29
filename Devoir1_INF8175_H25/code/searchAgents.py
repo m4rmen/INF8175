@@ -295,6 +295,10 @@ class CornersProblem(search.SearchProblem):
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
 
+        self.cornersWithFood = [corner for corner in self.corners if startingGameState.hasFood(*corner)]
+        
+
+
 
     def getStartState(self):
         """
@@ -305,8 +309,8 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        
-        util.raiseNotDefined()
+        return (self.startingPosition, self.corners)
+    
 
     def isGoalState(self, state):
         """
@@ -317,7 +321,7 @@ class CornersProblem(search.SearchProblem):
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
 
-        util.raiseNotDefined()
+        return state in self.cornersWithFood
 
     def getSuccessors(self, state):
         """
