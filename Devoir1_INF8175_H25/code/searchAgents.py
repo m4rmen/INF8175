@@ -469,11 +469,11 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+    foodList = foodGrid.asList()
 
-    '''
-        INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
-    '''
+    if not foodList:
+        return 0
 
-
-    return 0
+    distances = [util.manhattanDistance(position, food) for food in foodList]
+    return max(distances)
 
