@@ -100,8 +100,6 @@ def depthFirstSearch(problem:SearchProblem)->List[Direction]:
         INSÉREZ VOTRE SOLUTION À LA QUESTION 1 ICI
     '''
 
-    print('Start:', problem.getStartState())
-    print('Start\'s successors:', problem.getSuccessors(problem.getStartState()))
 
 
     stack = util.Stack()
