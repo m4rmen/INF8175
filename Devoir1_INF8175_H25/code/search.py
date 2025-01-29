@@ -137,6 +137,7 @@ def breadthFirstSearch(problem:SearchProblem)->List[Direction]:
     queue = util.Queue()
     visited = set()
     startState = problem.getStartState()
+    visited.add(startState)
     for successorState, action, _ in problem.getSuccessors(startState):
         queue.push((successorState, [action]))
 
