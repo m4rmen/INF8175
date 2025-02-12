@@ -1,7 +1,0 @@
-# Ignore compiled Python files and cache directories
-code/__pycache__/
-*.py[cod]
-
-# Ignore environment files
-.env
-.venv
