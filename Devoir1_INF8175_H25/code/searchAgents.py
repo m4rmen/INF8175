@@ -469,44 +469,23 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    foodList = foodGrid.asList()
 
+    food_coords = foodGrid.asList()
 
-    if not foodList:
-        return 0  
+    # Utils function to convert a search state to dict key
+    def convert_key(position, food_pos):
+        return hash((position, food_pos))
+    
+    distances = []
 
-    #check la distance entre 2 points dans le labyrinthe en BFS
-    def mazeDistance(point1, point2, gameState):
-        problem = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False)
-        return len(search.breadthFirstSearch(problem))
+    for food_pos in food_coords:
+        # check if position to food distance has been already computed
+        if convert_key(position, food_pos) not in problem.heuristicInfo:
+            # compute the distance to the food 
+            astar_dist = len(search.ucs(PositionSearchProblem(gameState=problem.startingGameState, start=position, goal=food_pos, warn=False)))
+            # add the distance to a dict to avoid compute same path multiple times
+            problem.heuristicInfo[convert_key(position, food_pos)] = astar_dist
+        distances.append(problem.heuristicInfo[convert_key(position, food_pos)])
 
-    #check le rond le plus eloigné de pacman
-    foodDistances =[]
-    for food in foodList:
-        foodDistances.append(util.manhattanDistance(position, food))
-    farthestFood = foodList[foodDistances.index(max(foodDistances))]
-
-    #check la distance entre la position actuelle de pacman et le rond le plus eloigné
-    farthestDistance = problem.heuristicInfo.get((position, farthestFood))
-    if not farthestDistance:   
-        #si la distance n'est pas stockée, on la calcule et on la stocke
-        farthestDistance = mazeDistance(position, farthestFood, problem.startingGameState)
-        problem.heuristicInfo[(position, farthestFood)] = farthestDistance
-
-    #on veut trouver la distance plus grande entre 2 ronds de nourriture
-    maxDistanceFoodPairs = 0
-    for i in range(len(foodList)):
-        for j in range(i + 1, len(foodList)):
-            #si la distance est stockée, on la prend, sinon on la calcule et on la stocke
-            food1, food2 = foodList[i], foodList[j]
-            if (food1, food2) in problem.heuristicInfo:
-                dist = problem.heuristicInfo[(food1, food2)]
-            else:
-                dist = mazeDistance(food1, food2, problem.startingGameState)
-                problem.heuristicInfo[(food1, food2)] = dist
-            maxDistanceFoodPairs = max(maxDistanceFoodPairs, dist)
-
-    #on retourne la distance la plus grande entre les 2 distances calculées (le chemin le plus coûteux)
-    #soit on parcours au minimum la distance la plus grande entre la position initiale et celle du rond de nourriture le plus eloigné
-    #soit peu importe la position initiale on doit parcourir la distance la plus grande entre 2 ronds de nourriture
-    return max(farthestDistance, maxDistanceFoodPairs)
+    # Return the maximum distance to food from the position
+    return max(distances) if len(distances) > 0 else 0 
