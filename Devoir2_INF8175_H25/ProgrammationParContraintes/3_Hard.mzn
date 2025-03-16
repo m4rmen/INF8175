@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Alexandre Marmen (2045362)
+% Adam Kassi Lahlou (2195278)
 
 include "globals.mzn"; 
 
