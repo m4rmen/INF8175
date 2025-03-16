@@ -1,5 +1,6 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Alexandre Marmen (2045362)
+% Adam Kassi Lahlou (2195278)
+
 
 include "globals.mzn"; 
 
@@ -37,6 +38,19 @@ var int: fin_projet;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
+constraint forall(i in 1..n)(
+   fin_tache[i] = debut_tache[i] + duree_tache[i]
+);
+
+constraint fin_projet = max(i in 1..n)(fin_tache[i]);
+
+constraint cumulative(debut_tache, duree_tache, ressource_tache, limite);
+
+array[1..m] of var 0..n: occ;
+constraint global_cardinality(debut_tache, [t | t in 1..m], occ);
+constraint forall(t in 1..m)( occ[t] <= 2 );
+
+solve minimize fin_projet;
 
 %-----------------------------------------------------------------------------%
 
