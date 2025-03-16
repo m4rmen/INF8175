@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Alexandre Marmen (2045362)
+% Adam Kassi Lahlou (2195278)
 
 include "globals.mzn";
 
@@ -23,8 +23,15 @@ var int: p;
 %-----------------------------------------------------------------------------%
 % Partie étudiant
 %-----------------------------------------------------------------------------%
-
-
+constraint nombre = 1000 * chiffres[1] + 100 * chiffres[2] + 10 * chiffres[3] + chiffres[4];
+constraint chiffres[4] mod 2 = 0;
+constraint alldifferent(chiffres);
+constraint chiffres[1] > chiffres[2];
+constraint chiffres[3] < chiffres[4];
+constraint chiffres[2] > chiffres[4];
+constraint (chiffres[1] + chiffres[2] + chiffres[3] + chiffres[4]) > 15;
+constraint p = chiffres[2] * chiffres[3] * chiffres[4];
+solve minimize p;
 %-----------------------------------------------------------------------------%
 
 output [

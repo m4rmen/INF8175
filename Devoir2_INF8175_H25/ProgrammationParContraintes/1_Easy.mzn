@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+% Alexandre Marmen (2045362)
+% Adam Kassi Lahlou (2195278)
 
 include "globals.mzn";
 
@@ -21,11 +21,25 @@ array[1..n,1..n] of costumes: choix_costume;
 % Variables de décision pour assigner un acteur à un rôle
 array [1..n] of var 1..n: assignation_role;
 
+array[1..n] of var costumes: chosen_costume;
+
 %-----------------------------------------------------------------------------%
 % Partie étudiant
 %-----------------------------------------------------------------------------%
+constraint alldifferent(assignation_role);
 
+constraint
+  forall(i in 1..n) (
+    chosen_costume[i] = choix_costume[assignation_role[i], i]
+  );
+  
+constraint alldifferent(chosen_costume);
 
+constraint
+  forall(i in 1..n-1) (
+    abs(assignation_role[i] - assignation_role[i+1]) != 1
+  );
+solve satisfy;
 
 %-----------------------------------------------------------------------------%
 
