@@ -7,7 +7,7 @@ print("***********************************************************\n\n")
 
 instances = ["horaire_A_11_20.txt","horaire_B_23_71.txt", "horaire_C_121_3960.txt", "horaire_D_645_13979.txt"]
 scores_randoms = [9, 15, 84, 354] 
-scores_secrets = [5, 6, 18, 35]
+scores_secrets = [5, 6, 25, 40]
 instances = [Schedule("instances/"+i) for i in instances]
 scores_beaten = [[],[]]
 has_failed = False
