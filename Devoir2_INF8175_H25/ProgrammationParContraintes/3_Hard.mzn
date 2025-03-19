@@ -49,6 +49,30 @@ var int: temps_trajet;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
+constraint alldifferent(chemin_tournee);
+
+constraint circuit(circuit_tournee);
+
+constraint chemin_tournee[1] = 1;
+constraint forall(i in 1..n-1) (
+    chemin_tournee[i+1] = circuit_tournee[chemin_tournee[i]]
+);
+
+constraint cumul_temps[1] = 0;
+
+constraint forall(i in 1..n-1) (
+   cumul_temps[chemin_tournee[i+1]] >= max(fenetre_arrivee[chemin_tournee[i+1], 1], cumul_temps[chemin_tournee[i]] + distance[chemin_tournee[i], chemin_tournee[i+1]])
+);
+
+constraint forall(i in 1..n) (
+    temps_attente[i] = max(0,fenetre_arrivee[chemin_tournee[i], 1] - cumul_temps[chemin_tournee[i]])
+);
+
+constraint temps_trajet = sum([distance[chemin_tournee[i], chemin_tournee[i+1]] | i in 1..n-1]) + distance[chemin_tournee[n], chemin_tournee[1]] + total_temps_attentes;
+
+constraint temps_trajet <= max_trajet;
+
+solve minimize temps_trajet;
 
 %-----------------------------------------------------------------------------%
 
