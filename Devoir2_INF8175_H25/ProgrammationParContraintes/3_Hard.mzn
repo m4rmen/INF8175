@@ -50,30 +50,50 @@ var int: temps_trajet;
 %-----------------------------------------------------------------------------%
 
 constraint alldifferent(chemin_tournee);
-
-constraint circuit(circuit_tournee);
-
-constraint chemin_tournee[1] = 1;
+constraint alldifferent(circuit_tournee);
+constraint circuit_tournee[chemin_tournee[n]] = chemin_tournee[1];
 constraint forall(i in 1..n-1) (
-    chemin_tournee[i+1] = circuit_tournee[chemin_tournee[i]]
+    circuit_tournee[chemin_tournee[i]] = chemin_tournee[i+1]
 );
 
-constraint cumul_temps[1] = 0;
+constraint temps_attente[chemin_tournee[1]] = (
+  if distance[chemin_tournee[n], chemin_tournee[1]] < fenetre_arrivee[chemin_tournee[1], 1] then 
+    fenetre_arrivee[chemin_tournee[1], 1] - distance[chemin_tournee[n], chemin_tournee[1]]
+  else 
+    0 
+  endif
+);         
 
-constraint forall(i in 1..n-1) (
-   cumul_temps[chemin_tournee[i+1]] >= max(fenetre_arrivee[chemin_tournee[i+1], 1], cumul_temps[chemin_tournee[i]] + distance[chemin_tournee[i], chemin_tournee[i+1]])
+constraint cumul_temps[1] = distance[chemin_tournee[n], chemin_tournee[1]] + temps_attente[chemin_tournee[1]];
+constraint forall(i in 1..n-1)(
+  cumul_temps[i+1] > cumul_temps[i] /\
+  cumul_temps[i+1] >= cumul_temps[1] + sum([distance[chemin_tournee[j], chemin_tournee[j+1]]|j in 1..i])
 );
 
-constraint forall(i in 1..n) (
-    temps_attente[i] = max(0,fenetre_arrivee[chemin_tournee[i], 1] - cumul_temps[chemin_tournee[i]])
+constraint forall(i in 1..n)(
+    temps_attente[chemin_tournee[i]] >= 0 
 );
 
-constraint temps_trajet = sum([distance[chemin_tournee[i], chemin_tournee[i+1]] | i in 1..n-1]) + distance[chemin_tournee[n], chemin_tournee[1]] + total_temps_attentes;
+constraint forall(i in 2..n) (
+    cumul_temps[i] >= fenetre_arrivee[chemin_tournee[i],1] /\
+    cumul_temps[i] <= fenetre_arrivee[chemin_tournee[i],2]
+);
 
-constraint temps_trajet <= max_trajet;
+constraint forall(i in 2..n) (
+    let {
+        var int: arrivee_estimee = cumul_temps[i-1] + distance[chemin_tournee[i-1], chemin_tournee[i]]
+    } 
+    in temps_attente[chemin_tournee[i]] = (
+      if arrivee_estimee < fenetre_arrivee[chemin_tournee[i], 1] then 
+          fenetre_arrivee[chemin_tournee[i], 1] - arrivee_estimee
+      else 
+          0 
+      endif
+    ) /\ cumul_temps[i] = arrivee_estimee + temps_attente[chemin_tournee[i]]
+);
 
+temps_trajet = cumul_temps[n];
 solve minimize temps_trajet;
-
 %-----------------------------------------------------------------------------%
 
 output [
