@@ -1,6 +1,6 @@
 import nn
 from backend import PerceptronDataset, RegressionDataset, DigitClassificationDataset
-
+import numpy as np
 
 class PerceptronModel(object):
     def __init__(self, dimensions: int) -> None:
@@ -61,8 +61,6 @@ class PerceptronModel(object):
                     converged = False
 
 
-
-
 class RegressionModel(object):
     """
     A neural network model for approximating a function that maps from real
@@ -73,6 +71,21 @@ class RegressionModel(object):
     def __init__(self) -> None:
         # Initialize your model parameters here
         "*** TODO: COMPLETE HERE FOR QUESTION 2 ***"
+        self.hidden_dim1 = 128
+        self.hidden_dim2 = 128
+        self.lr = 0.5
+        self.batch_size = 50 
+        
+        self.W1 = nn.Parameter(1, self.hidden_dim1)
+        self.b1 = nn.Parameter(1, self.hidden_dim1)
+        
+        self.W2 = nn.Parameter(self.hidden_dim1, self.hidden_dim2)
+        self.b2 = nn.Parameter(1, self.hidden_dim2)
+        
+        self.W3 = nn.Parameter(self.hidden_dim2, 1)
+        self.b3 = nn.Parameter(1, 1)
+
+        self.scale = nn.Constant(np.array([[1/(2*np.pi)]], dtype=np.float64))
 
     def run(self, x: nn.Constant) -> nn.Node:
         """
@@ -84,6 +97,22 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** TODO: COMPLETE HERE FOR QUESTION 2 ***"
+        
+        
+        normalized_x = nn.Linear(x, self.scale)  
+        
+        a1 = nn.Linear(normalized_x, self.W1)   
+        z1 = nn.AddBias(a1, self.b1)
+        h1 = nn.ReLU(z1)
+        
+        a2 = nn.Linear(h1, self.W2)           
+        z2 = nn.AddBias(a2, self.b2)
+        h2 = nn.ReLU(z2)
+        
+        a3 = nn.Linear(h2, self.W3)            
+        y_pred = nn.AddBias(a3, self.b3)       
+        
+        return y_pred
 
     def get_loss(self, x: nn.Constant, y: nn.Constant) -> nn.Node:
         """
@@ -96,12 +125,42 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** TODO: COMPLETE HERE FOR QUESTION 2 ***"
+        y_pred = self.run(x)
+        loss = nn.SquareLoss(y_pred, y)
+        return loss
 
     def train(self, dataset: RegressionDataset) -> None:
         """
         Trains the model.
         """
         "*** TODO: COMPLETE HERE FOR QUESTION 2 ***"
+        epoch = 0
+        while True:
+            epoch_loss = 0.0
+            count = 0
+            
+            for x_batch, y_batch in dataset.iterate_once(self.batch_size):
+                loss_node = self.get_loss(x_batch, y_batch)
+                loss_value = nn.as_scalar(loss_node)
+                
+                epoch_loss += loss_value
+                count += 1
+                
+                grads = nn.gradients(loss_node, [self.W1, self.b1,self.W2, self.b2,self.W3, self.b3])
+                
+
+                self.W1.update(grads[0], -self.lr)
+                self.b1.update(grads[1], -self.lr)
+                self.W2.update(grads[2], -self.lr)
+                self.b2.update(grads[3], -self.lr)
+                self.W3.update(grads[4], -self.lr)
+                self.b3.update(grads[5], -self.lr)
+            
+            avg_loss = epoch_loss / count
+            print(f"Epoch {epoch} | Loss: {avg_loss}")
+            if avg_loss < 0.0002 :
+                break
+            epoch += 1
 
 
 class DigitClassificationModel(object):
